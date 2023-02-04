@@ -189,7 +189,6 @@ class ModelRunner:
 
         print("Testing...")
         eval_start_time = time.time()
-
         if self.config.LOAD_PATH and not self.config.TRAIN_PATH:
             model_dirname = os.path.dirname(self.config.LOAD_PATH)
         elif self.config.MODEL_PATH:
@@ -267,10 +266,10 @@ class ModelRunner:
 
         elapsed = int(time.time() - eval_start_time)
         precision, recall, f1 = calculate_results(true_positive, false_positive, false_negative)
-        files_rouge = FilesRouge(predicted_file_name, ref_file_name)
-        rouge = files_rouge.get_scores(avg=True, ignore_empty=True)
+        # files_rouge = FilesRouge(predicted_file_name, ref_file_name)
+        # rouge = files_rouge.get_scores(hyp_path=predicted_file_name, ref_path=ref_file_name, avg=True, ignore_empty=True)
         print("Evaluation time: %sh%sm%ss" % ((elapsed // 60 // 60), (elapsed // 60) % 60, elapsed % 60))
-        return num_correct_predictions / total_predictions, precision, recall, f1, rouge
+        return num_correct_predictions / total_predictions, precision, recall, f1 #, rouge
 
     def print_hyperparams(self):
         print('Training batch size:\t\t\t', self.config.BATCH_SIZE)
@@ -415,6 +414,8 @@ class ModelRunner:
         path_name = os.path.dirname(path)
         if os.path.exists(path_name):
             with open(os.path.join(path_name, 'model.dict'), 'rb') as file:
+                print('Loading dictionaries from: ' + self.config.LOAD_PATH)
+
                 self.subtoken_to_index = pickle.load(file)
                 self.index_to_subtoken = pickle.load(file)
                 self.subtoken_vocab_size = pickle.load(file)
@@ -428,8 +429,10 @@ class ModelRunner:
                 self.nodes_vocab_size = pickle.load(file)
 
                 self.num_training_examples = pickle.load(file)
+                self.epochs_trained = pickle.load(file)
                 saved_config = pickle.load(file)
                 self.config.take_model_hyperparams_from(saved_config)
+                print('Done loading dictionaries')
 
             self.model = Model(self.config, self.subtoken_vocab_size, self.target_vocab_size, self.nodes_vocab_size,
                                self.target_to_index)

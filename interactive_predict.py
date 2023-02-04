@@ -27,7 +27,7 @@ class InteractivePredictor:
             return file.readlines()
 
     def predict(self):
-        input_filename = 'Input.source'
+        input_filename = './code2seq-tf-2.x/Input.source'
         print('Serving')
         while True:
             print('Modify the file: "' + input_filename + '" and press any key when ready, or "q" / "exit" to exit')
